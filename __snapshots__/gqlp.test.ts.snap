@@ -260,3 +260,20 @@ Array [
   },
 ]
 `;
+
+exports[`tokenizes 10`] = `
+Array [
+  Object {
+    "kind": "Punctuator",
+    "value": "{",
+  },
+  Object {
+    "kind": "Name",
+    "value": "x",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "}",
+  },
+]
+`;

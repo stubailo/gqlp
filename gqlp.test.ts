@@ -21,4 +21,10 @@ it('tokenizes', () => {
 `)).toMatchSnapshot();
   // comma
   expect(tokenize(`{ x, }`)).toMatchSnapshot();
+  // newline
+  expect(tokenize(`{
+  # get the field called X
+  x
+}
+`)).toMatchSnapshot();
 });

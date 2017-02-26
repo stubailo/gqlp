@@ -13,9 +13,16 @@ export function tokenize(doc: string): Token[] {
   let pos = 0;
   let tokens: Token[] = [];
 
-  function skipSpace() {
+  function skipSpaceOrComment() {
     if(doc[pos].match(/[\s,]/)) {
       pos++;
+      return true;
+    }
+
+    if (doc[pos] === '#') {
+      while(doc[pos] !== '\n' && pos < doc.length) {
+        pos++;
+      }
       return true;
     }
   }
@@ -151,7 +158,7 @@ export function tokenize(doc: string): Token[] {
   }
 
   while (pos < doc.length) {
-    skipSpace() ||
+    skipSpaceOrComment() ||
       tokenizePunctuator() ||
       tokenizeName() ||
       tokenizeNumber() ||
