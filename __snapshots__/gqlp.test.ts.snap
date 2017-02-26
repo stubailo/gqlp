@@ -3,23 +3,33 @@
 exports[`tokenizes 1`] = `
 Array [
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": "(",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": ")",
   },
   Object {
+    "col": 3,
     "kind": "Punctuator",
+    "line": 1,
     "value": "...",
   },
   Object {
+    "col": 3,
     "kind": "Punctuator",
+    "line": 1,
     "value": "[",
   },
   Object {
+    "col": 4,
     "kind": "Punctuator",
+    "line": 1,
     "value": "]",
   },
 ]
@@ -28,15 +38,21 @@ Array [
 exports[`tokenizes 2`] = `
 Array [
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 1,
     "value": "{",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "x",
   },
   Object {
+    "col": 3,
     "kind": "Punctuator",
+    "line": 1,
     "value": "}",
   },
 ]
@@ -45,35 +61,51 @@ Array [
 exports[`tokenizes 3`] = `
 Array [
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 1,
     "value": "{",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "x",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": "(",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "arg",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": ":",
   },
   Object {
+    "col": 3,
     "kind": "IntValue",
+    "line": 1,
     "value": 5,
   },
   Object {
+    "col": 3,
     "kind": "Punctuator",
+    "line": 1,
     "value": ")",
   },
   Object {
+    "col": 4,
     "kind": "Punctuator",
+    "line": 1,
     "value": "}",
   },
 ]
@@ -82,35 +114,51 @@ Array [
 exports[`tokenizes 4`] = `
 Array [
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 1,
     "value": "{",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "x",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": "(",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "arg",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": ":",
   },
   Object {
+    "col": 3,
     "kind": "FloatValue",
+    "line": 1,
     "value": -5400,
   },
   Object {
+    "col": 3,
     "kind": "Punctuator",
+    "line": 1,
     "value": ")",
   },
   Object {
+    "col": 4,
     "kind": "Punctuator",
+    "line": 1,
     "value": "}",
   },
 ]
@@ -119,35 +167,51 @@ Array [
 exports[`tokenizes 5`] = `
 Array [
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 1,
     "value": "{",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "x",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": "(",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "arg",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": ":",
   },
   Object {
+    "col": 3,
     "kind": "StringValue",
+    "line": 1,
     "value": "what up",
   },
   Object {
+    "col": 3,
     "kind": "Punctuator",
+    "line": 1,
     "value": ")",
   },
   Object {
+    "col": 4,
     "kind": "Punctuator",
+    "line": 1,
     "value": "}",
   },
 ]
@@ -156,35 +220,51 @@ Array [
 exports[`tokenizes 6`] = `
 Array [
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 1,
     "value": "{",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "x",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": "(",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "arg",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": ":",
   },
   Object {
+    "col": 3,
     "kind": "StringValue",
+    "line": 1,
     "value": "	what up",
   },
   Object {
+    "col": 3,
     "kind": "Punctuator",
+    "line": 1,
     "value": ")",
   },
   Object {
+    "col": 4,
     "kind": "Punctuator",
+    "line": 1,
     "value": "}",
   },
 ]
@@ -193,35 +273,51 @@ Array [
 exports[`tokenizes 7`] = `
 Array [
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 1,
     "value": "{",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "x",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": "(",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "arg",
   },
   Object {
+    "col": 2,
     "kind": "Punctuator",
+    "line": 1,
     "value": ":",
   },
   Object {
+    "col": 3,
     "kind": "StringValue",
+    "line": 1,
     "value": "\\" up",
   },
   Object {
+    "col": 3,
     "kind": "Punctuator",
+    "line": 1,
     "value": ")",
   },
   Object {
+    "col": 4,
     "kind": "Punctuator",
+    "line": 1,
     "value": "}",
   },
 ]
@@ -230,15 +326,21 @@ Array [
 exports[`tokenizes 8`] = `
 Array [
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 1,
     "value": "{",
   },
   Object {
+    "col": 3,
     "kind": "Name",
+    "line": 2,
     "value": "x",
   },
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 3,
     "value": "}",
   },
 ]
@@ -247,15 +349,21 @@ Array [
 exports[`tokenizes 9`] = `
 Array [
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 1,
     "value": "{",
   },
   Object {
+    "col": 2,
     "kind": "Name",
+    "line": 1,
     "value": "x",
   },
   Object {
+    "col": 4,
     "kind": "Punctuator",
+    "line": 1,
     "value": "}",
   },
 ]
@@ -264,15 +372,21 @@ Array [
 exports[`tokenizes 10`] = `
 Array [
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 1,
     "value": "{",
   },
   Object {
+    "col": 3,
     "kind": "Name",
+    "line": 3,
     "value": "x",
   },
   Object {
+    "col": 1,
     "kind": "Punctuator",
+    "line": 4,
     "value": "}",
   },
 ]

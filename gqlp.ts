@@ -11,10 +11,31 @@ export function gqlp(doc: string): DocumentNode {
 
 export function tokenize(doc: string): Token[] {
   let pos = 0;
+
+  let line = 0;
+  let col = 0;
   let tokens: Token[] = [];
+
+  function pushToken(kind, value) {
+    tokens.push({
+      kind,
+      value,
+
+      // In GraphQL responses these are supposed to be 1-indexed
+      line: line + 1,
+      col: col + 1,
+    })
+  }
 
   function skipSpaceOrComment() {
     if(doc[pos].match(/[\s,]/)) {
+      col++;
+
+      if (doc[pos] === '\n') {
+        line++;
+        col = 0;
+      }
+
       pos++;
       return true;
     }
@@ -31,12 +52,12 @@ export function tokenize(doc: string): Token[] {
   const singleCharPunctuator = /[!$():=@\[\]{}]/;
   function tokenizePunctuator(): boolean {
     if (singleCharPunctuator.test(doc[pos])) {
-      tokens.push({ kind: 'Punctuator', value: doc[pos] });
+      pushToken('Punctuator', doc[pos]);
       pos++;
       return true;
     } else if (doc[pos] === '.') {
       if (doc.length > pos + 2 && doc[pos + 1] === '.' && doc[pos + 2] === '.') {
-        tokens.push({ kind: 'Punctuator', value: '...' });
+        pushToken('Punctuator', '...');
         pos += 3;
         return true;
       } else {
@@ -61,7 +82,7 @@ export function tokenize(doc: string): Token[] {
         pos++;
       }
 
-      tokens.push({ kind: 'Name', value: chars.join('') });
+      pushToken('Name', chars.join(''));
       return true;
     }
   }
@@ -99,11 +120,11 @@ export function tokenize(doc: string): Token[] {
           pos++;
         }
 
-        tokens.push({ kind: 'FloatValue', value: parseFloat(chars.join('')) });
+        pushToken('FloatValue', parseFloat(chars.join('')));
         return true;
       }
 
-      tokens.push({ kind: 'IntValue', value: parseInt(chars.join(''), 10) });
+      pushToken('IntValue', parseInt(chars.join(''), 10));
       return true;
     }
   }
@@ -121,12 +142,12 @@ export function tokenize(doc: string): Token[] {
           stringEnd = true;
           pos++;
 
-          tokens.push({
-            kind: 'StringValue',
+          pushToken(
+            'StringValue',
 
             // Try to use JSON.parse to handle escaping, unicode, etc.
-            value: JSON.parse('"' + chars.join('') + '"'),
-          })
+            JSON.parse('"' + chars.join('') + '"'),
+          );
 
           // break loop
           return true;
@@ -169,7 +190,15 @@ export function tokenize(doc: string): Token[] {
   return tokens;
 }
 
+type TokenKind = 'Punctuator' | 'Name' | 'IntValue' | 'FloatValue' | 'StringValue';
+
 type Token = {
-  kind: 'Punctuator' | 'Name' | 'IntValue' | 'FloatValue' | 'StringValue',
+  kind: TokenKind,
   value: string | number,
+  line: number,
+  col: number,
 }
+
+// function parse(tokens: Token[]): DocumentNode {
+//   let pos = 0;
+// }
