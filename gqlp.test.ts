@@ -1,9 +1,18 @@
 import { gqlp, tokenize } from './gqlp';
 import { parse } from 'graphql';
 
-it('works on an empty document', () => {
-  expect(gqlp('query MyQuery { x }')).toEqual(stripLoc(parse('query MyQuery { x }')));
-});
+testParsing('op and name', 'query MyQuery { x }');
+testParsing('op', 'query { x }');
+testParsing('no op, no name', '{ x }');
+testParsing('alias', '{ x: y }');
+testParsing('nested', '{ x { y } }');
+testParsing('two', '{ x y }');
+
+function testParsing(name: string, query: string) {
+  it(`parsing: ${name}`, () => {
+    expect(gqlp(query)).toEqual(stripLoc(parse(query)));
+  });
+}
 
 it('tokenizes', () => {
   expect(tokenize(' () ...[ ] ')).toMatchSnapshot();

@@ -3,6 +3,9 @@ import {
   DefinitionNode,
   OperationDefinitionNode,
   FragmentDefinitionNode,
+  SelectionSetNode,
+  SelectionNode,
+  FieldNode,
 } from 'graphql';
 
 export function gqlp(doc: string): DocumentNode {
@@ -216,9 +219,12 @@ function parse(tokens: Token[]): DocumentNode {
   function parseDefinition(): DefinitionNode {
     const tok = consume('Name', true);
 
+    let hasKeyword = false;
     let definitionType = 'query';
+
     if (tok) {
       definitionType = tok.value;
+      hasKeyword = true;
     }
 
     if (
@@ -231,8 +237,10 @@ function parse(tokens: Token[]): DocumentNode {
       const opDef: OperationDefinitionNode = {
         kind: 'OperationDefinition',
         operation: 'query',
-        name: nameTok && { kind: 'Name', value: nameTok.value },
-        variableDefinitions: parseVariableDefinitions(),
+        // TODO fix the following two after response to
+        // https://github.com/graphql/graphql-js/issues/729
+        name: nameTok ? { kind: 'Name', value: nameTok.value } : ( hasKeyword ? undefined : null ),
+        variableDefinitions: hasKeyword ? parseVariableDefinitions() : null,
         directives: parseDirectives(),
         selectionSet: parseSelectionSet(),
       }
@@ -258,9 +266,63 @@ function parse(tokens: Token[]): DocumentNode {
     return [];
   }
 
-  function parseSelectionSet() {
-    // TODO
-    return null;
+  function parseSelectionSet(optional: boolean = false): SelectionSetNode {
+    const exists = !! consume('Punctuator', optional, '{');
+    if (! exists) {
+      return null;
+    }
+
+    const selections = [];
+    while (! consume('Punctuator', true, '}')) {
+      selections.push(parseSelection());
+    }
+
+    return {
+      kind: 'SelectionSet',
+      selections,
+    };
+  }
+
+  function parseSelection(optional: boolean = false): SelectionNode {
+    const isFragment = consume('Punctuator', true, '...');
+    if (isFragment) {
+      // TODO
+      throw new Error('fragments not implemented');
+    } else {
+      // This is a field
+      const aliasOrFieldNameTok = consume('Name', optional);
+      if (! aliasOrFieldNameTok) {
+        return null;
+      }
+
+      // Check for a colon to see if it is an alias
+      const isAlias = !! consume('Punctuator', true, ':');
+      let fieldName: string, alias: string;
+      if (isAlias) {
+        const fieldNameTok = consume('Name');
+        alias = aliasOrFieldNameTok.value;
+        fieldName = fieldNameTok.value;
+      } else {
+        fieldName = aliasOrFieldNameTok.value;
+      }
+
+      // Check for a paren to see if it has arguments
+      const hasArguments = !! consume('Punctuator', true, '(');
+      if (hasArguments) {
+        throw new Error('arguments not implemented');
+      }
+
+      const field: FieldNode = {
+        alias: alias ? { kind: 'Name', value: alias } : null,
+        arguments: [],
+        directives: parseDirectives(),
+        kind: 'Field',
+        name: { kind: 'Name', value: fieldName },
+        selectionSet: parseSelectionSet(true),
+      }
+
+      return field;
+    }
   }
 
   function consume(kind: TokenKind, optional: boolean = false, value?: string): Token | null {
