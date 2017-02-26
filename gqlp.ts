@@ -210,8 +210,9 @@ function parse(tokens: Token[]): DocumentNode {
   function parseDefinitions(): DefinitionNode[] {
     const definitions = [];
 
-    // TODO iterate
-    definitions.push(parseDefinition());
+    while (pos < tokens.length) {
+      definitions.push(parseDefinition());
+    }
 
     return definitions;
   }
@@ -236,7 +237,7 @@ function parse(tokens: Token[]): DocumentNode {
 
       const opDef: OperationDefinitionNode = {
         kind: 'OperationDefinition',
-        operation: 'query',
+        operation: definitionType,
         // TODO fix the following two after response to
         // https://github.com/graphql/graphql-js/issues/729
         name: nameTok ? { kind: 'Name', value: nameTok.value } : ( hasKeyword ? undefined : null ),

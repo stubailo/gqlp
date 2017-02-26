@@ -6,7 +6,9 @@ testParsing('op', 'query { x }');
 testParsing('no op, no name', '{ x }');
 testParsing('alias', '{ x: y }');
 testParsing('nested', '{ x { y } }');
-testParsing('two', '{ x y }');
+testParsing('two fields', '{ x y }');
+testParsing('multi op', 'query { x } query { y }');
+testParsing('mutation and subscription', 'mutation { x } subscription { x }');
 
 function testParsing(name: string, query: string) {
   it(`parsing: ${name}`, () => {
