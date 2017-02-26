@@ -1,0 +1,262 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tokenizes 1`] = `
+Array [
+  Object {
+    "kind": "Punctuator",
+    "value": "(",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ")",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "...",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "[",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "]",
+  },
+]
+`;
+
+exports[`tokenizes 2`] = `
+Array [
+  Object {
+    "kind": "Punctuator",
+    "value": "{",
+  },
+  Object {
+    "kind": "Name",
+    "value": "x",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "}",
+  },
+]
+`;
+
+exports[`tokenizes 3`] = `
+Array [
+  Object {
+    "kind": "Punctuator",
+    "value": "{",
+  },
+  Object {
+    "kind": "Name",
+    "value": "x",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "(",
+  },
+  Object {
+    "kind": "Name",
+    "value": "arg",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ":",
+  },
+  Object {
+    "kind": "IntValue",
+    "value": 5,
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ")",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "}",
+  },
+]
+`;
+
+exports[`tokenizes 4`] = `
+Array [
+  Object {
+    "kind": "Punctuator",
+    "value": "{",
+  },
+  Object {
+    "kind": "Name",
+    "value": "x",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "(",
+  },
+  Object {
+    "kind": "Name",
+    "value": "arg",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ":",
+  },
+  Object {
+    "kind": "FloatValue",
+    "value": -5400,
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ")",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "}",
+  },
+]
+`;
+
+exports[`tokenizes 5`] = `
+Array [
+  Object {
+    "kind": "Punctuator",
+    "value": "{",
+  },
+  Object {
+    "kind": "Name",
+    "value": "x",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "(",
+  },
+  Object {
+    "kind": "Name",
+    "value": "arg",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ":",
+  },
+  Object {
+    "kind": "StringValue",
+    "value": "what up",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ")",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "}",
+  },
+]
+`;
+
+exports[`tokenizes 6`] = `
+Array [
+  Object {
+    "kind": "Punctuator",
+    "value": "{",
+  },
+  Object {
+    "kind": "Name",
+    "value": "x",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "(",
+  },
+  Object {
+    "kind": "Name",
+    "value": "arg",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ":",
+  },
+  Object {
+    "kind": "StringValue",
+    "value": "	what up",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ")",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "}",
+  },
+]
+`;
+
+exports[`tokenizes 7`] = `
+Array [
+  Object {
+    "kind": "Punctuator",
+    "value": "{",
+  },
+  Object {
+    "kind": "Name",
+    "value": "x",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "(",
+  },
+  Object {
+    "kind": "Name",
+    "value": "arg",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ":",
+  },
+  Object {
+    "kind": "StringValue",
+    "value": "\\" up",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": ")",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "}",
+  },
+]
+`;
+
+exports[`tokenizes 8`] = `
+Array [
+  Object {
+    "kind": "Punctuator",
+    "value": "{",
+  },
+  Object {
+    "kind": "Name",
+    "value": "x",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "}",
+  },
+]
+`;
+
+exports[`tokenizes 9`] = `
+Array [
+  Object {
+    "kind": "Punctuator",
+    "value": "{",
+  },
+  Object {
+    "kind": "Name",
+    "value": "x",
+  },
+  Object {
+    "kind": "Punctuator",
+    "value": "}",
+  },
+]
+`;
