@@ -2,7 +2,7 @@ import { gqlp, tokenize } from './gqlp';
 import { parse } from 'graphql';
 
 it('works on an empty document', () => {
-  //expect(gqlp('{ x }')).toEqual(parse('{ x }'));
+  expect(gqlp('query MyQuery { x }')).toEqual(stripLoc(parse('query MyQuery { x }')));
 });
 
 it('tokenizes', () => {
@@ -28,3 +28,23 @@ it('tokenizes', () => {
 }
 `)).toMatchSnapshot();
 });
+
+function stripLoc(obj: Object) {
+  if (Array.isArray(obj)) {
+    return obj.map(stripLoc);
+  }
+
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+
+  const nextObj = {};
+
+  Object.keys(obj).forEach(key => {
+    if (key !== 'loc') {
+      nextObj[key] = stripLoc(obj[key]);
+    }
+  });
+
+  return nextObj;
+}

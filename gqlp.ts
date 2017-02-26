@@ -1,12 +1,14 @@
-import { DocumentNode } from 'graphql';
+import {
+  DocumentNode,
+  DefinitionNode,
+  OperationDefinitionNode,
+  FragmentDefinitionNode,
+} from 'graphql';
 
 export function gqlp(doc: string): DocumentNode {
   const tokens = tokenize(doc);
 
-  return {
-    kind: 'Document',
-    definitions: [],
-  };
+  return parse(tokens);
 }
 
 export function tokenize(doc: string): Token[] {
@@ -194,11 +196,103 @@ type TokenKind = 'Punctuator' | 'Name' | 'IntValue' | 'FloatValue' | 'StringValu
 
 type Token = {
   kind: TokenKind,
-  value: string | number,
+  value: string,
   line: number,
   col: number,
 }
 
-// function parse(tokens: Token[]): DocumentNode {
-//   let pos = 0;
-// }
+function parse(tokens: Token[]): DocumentNode {
+  let pos = 0;
+
+  function parseDefinitions(): DefinitionNode[] {
+    const definitions = [];
+
+    // TODO iterate
+    definitions.push(parseDefinition());
+
+    return definitions;
+  }
+
+  function parseDefinition(): DefinitionNode {
+    const tok = consume('Name', true);
+
+    let definitionType = 'query';
+    if (tok) {
+      definitionType = tok.value;
+    }
+
+    if (
+      definitionType === 'query' ||
+      definitionType === 'mutation' ||
+      definitionType === 'subscription'
+    ) {
+      const nameTok = consume('Name', true);
+
+      const opDef: OperationDefinitionNode = {
+        kind: 'OperationDefinition',
+        operation: 'query',
+        name: nameTok && { kind: 'Name', value: nameTok.value },
+        variableDefinitions: parseVariableDefinitions(),
+        directives: parseDirectives(),
+        selectionSet: parseSelectionSet(),
+      }
+
+      return opDef;
+    }
+
+    if (definitionType === 'fragment') {
+      // TODO
+      return null;
+    }
+
+    throw new Error('Invalid definition type: ' + definitionType);
+  }
+
+  function parseVariableDefinitions() {
+    // TODO
+    return [];
+  }
+
+  function parseDirectives() {
+    // TODO
+    return [];
+  }
+
+  function parseSelectionSet() {
+    // TODO
+    return null;
+  }
+
+  function consume(kind: TokenKind, optional: boolean = false, value?: string): Token | null {
+    const found = true;
+    if (tokens[pos].kind !== kind) {
+      if (optional) {
+        return null;
+      }
+
+      throw new Error(
+        `Invalid token ${tokens[pos].value} at ${tokens[pos].line}, ${tokens[pos].col}`);
+    }
+
+    if (value && tokens[pos].value !== value) {
+      if (optional) {
+        return null;
+      }
+
+      throw new Error(
+        `Invalid token ${tokens[pos].value} at ${tokens[pos].line}, ${tokens[pos].col}`);
+    }
+
+    pos++;
+    return tokens[pos - 1];
+  }
+
+  function value() {
+    return tokens[pos].value;
+  }
+
+  return {
+    kind: 'Document',
+    definitions: parseDefinitions(),
+  };
+}
