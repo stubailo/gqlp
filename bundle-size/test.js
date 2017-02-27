@@ -13,20 +13,21 @@ console.log('gqlp: ', size(filePath));
 
 const webpack = require("webpack");
 
-const graphqlJsPath = 'graphql-js-index.js';
-const graphqlJsBundle = 'graphql-js-bundle.js';
+['parse.js', 'print.js', 'print-and-parse.js'].forEach(webpackAndSize);
 
-// returns a Compiler instance
-webpack({
-  entry: path.resolve(__dirname, graphqlJsPath),
-  output: {
-    path: __dirname,
-    filename: graphqlJsBundle,
-  },
-}, function(err, stats) {
-  console.log('graphql-js: ', size(graphqlJsBundle));
-});
+function webpackAndSize(relativePath) {
+  const graphqlJsBundle = 'build.' + relativePath;
 
+  webpack({
+    entry: path.resolve(__dirname, relativePath),
+    output: {
+      path: __dirname,
+      filename: graphqlJsBundle,
+    },
+  }, function(err, stats) {
+    console.log(relativePath, size(graphqlJsBundle));
+  });
+}
 
 function size(relativePath) {
   const resolvedPath = path.resolve(__dirname, relativePath);
