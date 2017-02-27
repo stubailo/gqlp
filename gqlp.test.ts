@@ -14,6 +14,8 @@ testParsing('argument float', '{ x(a: 5.0) }');
 testParsing('multi arguments', '{ x(a: 1 b: 2) }');
 testParsing('scalar', '{ x(a: 1 b: 2.0 c: "hello" d: true e: null f: $var g: ENUM_VAL ) }');
 testParsing('list', '{ x(a: [1, 2.0, "hello", true, null, $var, ENUM_VAL] ) }');
+testParsing('obj', '{ x(a: { b: 1 c: 2 } ) }');
+testParsing('frag', 'fragment x on Y { x }');
 
 function testParsing(name: string, query: string) {
   it(`parsing: ${name}`, () => {

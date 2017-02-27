@@ -16,6 +16,8 @@ import {
   VariableNode,
   EnumValueNode,
   ListValueNode,
+  ObjectValueNode,
+  ObjectFieldNode,
 } from 'graphql';
 
 export function gqlp(doc: string): DocumentNode {
@@ -151,7 +153,6 @@ export function tokenize(doc: string): Token[] {
       let stringEnd = false;
 
       // Consume characters that aren't ", /, or line terminator
-      // TODO line terminator
       while (pos < doc.length) {
         if (doc[pos] === '"') {
           stringEnd = true;
@@ -245,7 +246,7 @@ function parse(tokens: Token[]): DocumentNode {
     ) {
       const nameTok = consume('Name', true);
 
-      const opDef: OperationDefinitionNode = {
+      return {
         kind: 'OperationDefinition',
         operation: definitionType,
         // TODO fix the following two after response to
@@ -254,14 +255,21 @@ function parse(tokens: Token[]): DocumentNode {
         variableDefinitions: hasKeyword ? parseVariableDefinitions() : null,
         directives: parseDirectives(),
         selectionSet: parseSelectionSet(),
-      }
-
-      return opDef;
+      } as OperationDefinitionNode;
     }
 
     if (definitionType === 'fragment') {
-      // TODO
-      return null;
+      const nameTok = consume('Name', true);
+      consume('Name', false, 'on');
+      const typeConditionTok = consume('Name');
+
+      return {
+        kind: 'FragmentDefinition',
+        name: { kind: 'Name', value: nameTok.value },
+        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: typeConditionTok.value }},
+        directives: parseDirectives(),
+        selectionSet: parseSelectionSet(),
+      } as FragmentDefinitionNode;
     }
 
     throw new Error('Invalid definition type: ' + definitionType);
@@ -420,7 +428,23 @@ function parse(tokens: Token[]): DocumentNode {
       }
 
       if (valueTok.value === '{') {
-        // Obj
+        const fields: ObjectFieldNode[] = [];
+
+        while (! consume('Punctuator', true, '}')) {
+          const nameTok = consume('Name', false);
+          const colon = consume('Punctuator', false, ':');
+
+          fields.push({
+            kind: 'ObjectField',
+            name: { kind: 'Name', value: nameTok.value },
+            value: parseValue(isConst),
+          });
+        }
+
+        return {
+          kind: 'ObjectValue',
+          fields,
+        } as ObjectValueNode;
       }
     }
 
