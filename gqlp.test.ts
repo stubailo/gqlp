@@ -7,6 +7,7 @@ testParsing('no op, no name', '{ x }');
 testParsing('alias', '{ x: y }');
 testParsing('nested', '{ x { y } }');
 testParsing('two fields', '{ x y }');
+testParsing('field after selection set', '{ x { y } z }');
 testParsing('multi op', 'query { x } query { y }');
 testParsing('mutation and subscription', 'mutation { x } subscription { x }');
 testParsing('argument', '{ x(a: 5) }');
@@ -19,6 +20,66 @@ testParsing('frag', 'fragment x on Y { x }');
 testParsing('directive', '{ x @skip(if: true) }');
 testParsing('frag spread', '{ ...x }');
 testParsing('inline frag', '{ ... on X { y } }');
+testParsing('inline frag no condition', '{ ... { y } }');
+testParsing('inline frag no condition directive', '{ ... @skip(unless: false) { id } }');
+testParsing('kitchen sink', `# Copyright (c) 2015, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+query queryName {
+  whoever123is: node(id: [123, 456]) {
+    id ,
+    ... on User @defer {
+      field2 {
+        id ,
+        alias: field1(first:10, after:$foo,) @include(if: $foo) {
+          id,
+          ...frag
+        }
+      }
+    }
+    ... @skip(unless: $foo) {
+      id
+    }
+    ... {
+      id
+    }
+  }
+}
+
+mutation likeStory {
+  like(story: 123) @defer {
+    story {
+      id
+    }
+  }
+}
+
+subscription StoryLikeSubscription {
+  storyLikeSubscribe(input: $input) {
+    story {
+      likers {
+        count
+      }
+      likeSentence {
+        text
+      }
+    }
+  }
+}
+
+fragment frag on Friend {
+  foo(size: $size, bar: $b, obj: {key: "value"})
+}
+
+{
+  unnamed(truthy: true, falsey: false, nullish: null),
+  query
+}
+`)
 
 // testParsing('var def', 'query ($x = 5) { y(a: $x)}');
 

@@ -280,16 +280,22 @@ function parse(tokens: Token[]): DocumentNode {
   }
 
   function parseTypeCondition(): NamedTypeNode {
+    const nameToken = consume('Name', true);
+
+    if (! nameToken) {
+      return null;
+    }
+
     return {
       kind: 'NamedType',
-      name: { kind: 'Name', value: consume('Name').value },
+      name: { kind: 'Name', value: nameToken.value },
     };
   }
 
   // Screw variable types
   function parseVariableDefinitions(): VariableDefinitionNode[] {
     if (consume('Punctuator', true, '(')) {
-      while (! consume('Punctuator', true, '}')) {
+      while (! consume('Punctuator', true, ')')) {
         consume();
       }
       return [];
@@ -330,7 +336,7 @@ function parse(tokens: Token[]): DocumentNode {
   function parseSelection(optional: boolean = false): SelectionNode {
     const isFragment = consume('Punctuator', true, '...');
     if (isFragment) {
-      if (consume('Name', true, 'on')) {
+      if (consume('Name', true, 'on') || tokens[pos].kind !== 'Name') {
         return {
           kind: 'InlineFragment',
           typeCondition: parseTypeCondition(),

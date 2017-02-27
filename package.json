@@ -5,13 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "benchmark": "node ./benchmark/test.js"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@types/graphql": "^0.8.6",
     "@types/jest": "^18.1.1",
+    "benchmark": "^2.1.3",
     "graphql": "^0.9.1",
     "jest": "^19.0.2",
     "ts-jest": "^19.0.0",
