@@ -129,7 +129,11 @@ export function tokenize(doc: string): Token[] {
   const floatRestChar = /[0-9Ee+\-]/;
   function tokenizeNumber(): boolean {
     // -?(0|[1-9][0-9]*)
-    if (numberFirstChar.test(doc[pos])) {
+    if (
+      // /[\-0-9]/
+      doc.charCodeAt(pos) >= 48 && doc.charCodeAt(pos) <= 57 ||
+      doc.charCodeAt(pos) === 45
+    ) {
       const startPos = pos;
       let isFloat = false;
 
