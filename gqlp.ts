@@ -50,10 +50,15 @@ export function tokenize(doc: string): Token[] {
   }
 
   function skipSpaceOrComment() {
-    if(doc[pos].match(/[\s,]/)) {
+    if(
+      doc.charCodeAt(pos) === 32 || // space
+      doc.charCodeAt(pos) === 10 || // newline
+      doc.charCodeAt(pos) === 9 || // comma
+      doc.charCodeAt(pos) === 44 // tab
+    ) {
       col++;
 
-      if (doc[pos] === '\n') {
+      if (doc.charCodeAt(pos) === 10) { // newline
         line++;
         col = 0;
       }
@@ -62,8 +67,8 @@ export function tokenize(doc: string): Token[] {
       return true;
     }
 
-    if (doc[pos] === '#') {
-      while(doc[pos] !== '\n' && pos < doc.length) {
+    if (doc.charCodeAt(pos) === 35) { // #
+      while(doc.charCodeAt(pos) !== 10 && pos < doc.length) { // newline
         pos++;
       }
       return true;
@@ -152,14 +157,14 @@ export function tokenize(doc: string): Token[] {
   }
 
   function tokenizeString() {
-    if (doc[pos] === '"') {
+    if (doc.charCodeAt(pos) === 34) { // "
       pos++;
       const chars = [];
       let stringEnd = false;
 
       // Consume characters that aren't ", /, or line terminator
       while (pos < doc.length) {
-        if (doc[pos] === '"') {
+        if (doc.charCodeAt(pos) === 34) { // "
           stringEnd = true;
           pos++;
 
@@ -175,7 +180,7 @@ export function tokenize(doc: string): Token[] {
         }
 
         // This is an escaped character
-        if (doc[pos] === '\\') {
+        if (doc.charCodeAt(pos) === 92) { // \
           // consume slash
           chars.push(doc[pos]);
           pos++;
