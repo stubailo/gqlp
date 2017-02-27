@@ -96,14 +96,25 @@ export function tokenize(doc: string): Token[] {
   const nameFirstChar = /[_A-Za-z]/;
   const nameRestChar = /[_0-9A-Za-z]/;
   function tokenizeName(): boolean {
-    if(nameFirstChar.test(doc[pos])) {
+    if (
+      // /[_A-Za-z]/
+      doc.charCodeAt(pos) >= 65 && doc.charCodeAt(pos) <= 90 ||
+      doc.charCodeAt(pos) >= 97 && doc.charCodeAt(pos) <= 122 ||
+      doc.charCodeAt(pos) === 95
+    ) {
       const startPos = pos;
 
       // consume first char
       pos++;
 
       // consume rest chars
-      while(nameRestChar.test(doc[pos])) {
+      while(
+        // /[_0-9A-Za-z]/
+        doc.charCodeAt(pos) >= 65 && doc.charCodeAt(pos) <= 90 ||
+        doc.charCodeAt(pos) >= 97 && doc.charCodeAt(pos) <= 122 ||
+        doc.charCodeAt(pos) >= 48 && doc.charCodeAt(pos) <= 57 ||
+        doc.charCodeAt(pos) === 95
+      ) {
         pos++;
       }
 
