@@ -239,7 +239,7 @@ export function tokenize(doc: string): Token[] {
   return tokens;
 }
 
-enum TokenKind {
+const enum TokenKind {
   Punctuator,
   Name,
   IntValue,
