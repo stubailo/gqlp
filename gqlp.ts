@@ -18,6 +18,11 @@ import {
   ListValueNode,
   ObjectValueNode,
   ObjectFieldNode,
+  DirectiveNode,
+  VariableDefinitionNode,
+  FragmentSpreadNode,
+  InlineFragmentNode,
+  NamedTypeNode,
 } from 'graphql';
 
 export function gqlp(doc: string): DocumentNode {
@@ -261,12 +266,11 @@ function parse(tokens: Token[]): DocumentNode {
     if (definitionType === 'fragment') {
       const nameTok = consume('Name', true);
       consume('Name', false, 'on');
-      const typeConditionTok = consume('Name');
 
       return {
         kind: 'FragmentDefinition',
         name: { kind: 'Name', value: nameTok.value },
-        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: typeConditionTok.value }},
+        typeCondition: parseTypeCondition(),
         directives: parseDirectives(),
         selectionSet: parseSelectionSet(),
       } as FragmentDefinitionNode;
@@ -275,14 +279,35 @@ function parse(tokens: Token[]): DocumentNode {
     throw new Error('Invalid definition type: ' + definitionType);
   }
 
-  function parseVariableDefinitions() {
-    // TODO
+  function parseTypeCondition(): NamedTypeNode {
+    return {
+      kind: 'NamedType',
+      name: { kind: 'Name', value: consume('Name').value },
+    };
+  }
+
+  // Screw variable types
+  function parseVariableDefinitions(): VariableDefinitionNode[] {
+    if (consume('Punctuator', true, '(')) {
+      while (! consume('Punctuator', true, '}')) {
+        consume();
+      }
+      return [];
+    }
+
     return [];
   }
 
-  function parseDirectives() {
-    // TODO
-    return [];
+  function parseDirectives(): DirectiveNode[] {
+    const directives: DirectiveNode[] = [];
+    while (!! consume('Punctuator', true, '@')) {
+      directives.push({
+        kind: 'Directive',
+        name: { kind: 'Name', value: consume('Name').value, },
+        arguments: parseArguments(),
+      })
+    }
+    return directives;
   }
 
   function parseSelectionSet(optional: boolean = false): SelectionSetNode {
@@ -305,8 +330,20 @@ function parse(tokens: Token[]): DocumentNode {
   function parseSelection(optional: boolean = false): SelectionNode {
     const isFragment = consume('Punctuator', true, '...');
     if (isFragment) {
-      // TODO
-      throw new Error('fragments not implemented');
+      if (consume('Name', true, 'on')) {
+        return {
+          kind: 'InlineFragment',
+          typeCondition: parseTypeCondition(),
+          directives: parseDirectives(),
+          selectionSet: parseSelectionSet(),
+        } as InlineFragmentNode;
+      }
+
+      return {
+        kind: 'FragmentSpread',
+        name: { kind: 'Name', value: consume('Name').value },
+        directives: parseDirectives(),
+      } as FragmentSpreadNode;
     } else {
       // This is a field
       const aliasOrFieldNameTok = consume('Name', optional);

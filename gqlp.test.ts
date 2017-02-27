@@ -16,6 +16,11 @@ testParsing('scalar', '{ x(a: 1 b: 2.0 c: "hello" d: true e: null f: $var g: ENU
 testParsing('list', '{ x(a: [1, 2.0, "hello", true, null, $var, ENUM_VAL] ) }');
 testParsing('obj', '{ x(a: { b: 1 c: 2 } ) }');
 testParsing('frag', 'fragment x on Y { x }');
+testParsing('directive', '{ x @skip(if: true) }');
+testParsing('frag spread', '{ ...x }');
+testParsing('inline frag', '{ ... on X { y } }');
+
+// testParsing('var def', 'query ($x = 5) { y(a: $x)}');
 
 function testParsing(name: string, query: string) {
   it(`parsing: ${name}`, () => {
