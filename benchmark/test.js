@@ -4,7 +4,7 @@ const gqlp = require('../lib/gqlp').gqlp;
 const tokenize = require('../lib/gqlp').tokenize;
 const parse = require('graphql').parse;
 
-const suite = new Benchmark.Suite;
+const suite = new Benchmark.Suite('graphql', { maxTime: 1 });
 
 const kitchenSink = `# Copyright (c) 2015, Facebook, Inc.
 # All rights reserved.
@@ -66,18 +66,19 @@ fragment frag on Friend {
 `;
 
 // add tests
-suite.add('graphql-js', function() {
-  parse(kitchenSink);
+suite
+.add('tokenize', function() {
+  tokenize(kitchenSink);
 })
 .add('gqlp', function() {
   gqlp(kitchenSink);
 })
-.add('tokenize', function() {
-  tokenize(kitchenSink);
+.add('graphql-js', function() {
+  parse(kitchenSink);
 })
 // add listeners
 .on('cycle', function(event) {
   console.log(String(event.target));
 })
 // run async
-.run({ 'async': true });
+.run({ 'async': true, maxTime: 1 });
