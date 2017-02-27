@@ -35,7 +35,8 @@ export function tokenize(doc: string): Token[] {
   let pos = 0;
 
   let line = 0;
-  let col = 0;
+  let lastNewLine = 0;
+
   let tokens: Token[] = [];
 
   function pushToken(kind: TokenKind, value: string) {
@@ -45,7 +46,7 @@ export function tokenize(doc: string): Token[] {
 
       // In GraphQL responses these are supposed to be 1-indexed
       line: line + 1,
-      col: col + 1,
+      col: pos - lastNewLine + 1,
     })
   }
 
@@ -56,11 +57,9 @@ export function tokenize(doc: string): Token[] {
       doc.charCodeAt(pos) === 9 || // comma
       doc.charCodeAt(pos) === 44 // tab
     ) {
-      col++;
-
       if (doc.charCodeAt(pos) === 10) { // newline
         line++;
-        col = 0;
+        lastNewLine = pos;
       }
 
       pos++;
@@ -81,24 +80,25 @@ export function tokenize(doc: string): Token[] {
   // char codes are 33,36,40,41,58,61,64,91,93,123,125
   function tokenizePunctuator(): boolean {
     if (
-      doc.charCodeAt(pos) === 33 ||
-      doc.charCodeAt(pos) === 36 ||
-      doc.charCodeAt(pos) === 40 ||
-      doc.charCodeAt(pos) === 41 ||
-      doc.charCodeAt(pos) === 58 ||
-      doc.charCodeAt(pos) === 61 ||
-      doc.charCodeAt(pos) === 64 ||
-      doc.charCodeAt(pos) === 91 ||
-      doc.charCodeAt(pos) === 93 ||
-      doc.charCodeAt(pos) === 123 ||
-      doc.charCodeAt(pos) === 125
+      // Put the brackets at the beginning because those are more common
+      doc.charCodeAt(pos) === 123 || // {
+      doc.charCodeAt(pos) === 125 || // }
+      doc.charCodeAt(pos) === 40 || // (
+      doc.charCodeAt(pos) === 41 || // )
+      doc.charCodeAt(pos) === 33 || // !
+      doc.charCodeAt(pos) === 36 || // $
+      doc.charCodeAt(pos) === 58 || // :
+      doc.charCodeAt(pos) === 61 || // =
+      doc.charCodeAt(pos) === 64 || // @
+      doc.charCodeAt(pos) === 91 || // [
+      doc.charCodeAt(pos) === 93 // ]
     ) {
-      pushToken('Punctuator', doc[pos]);
+      pushToken(TokenKind.Punctuator, doc[pos]);
       pos++;
       return true;
-    } else if (doc[pos] === '.') {
+    } else if (doc.charCodeAt(pos) === 46) {
       if (doc.length > pos + 2 && doc[pos + 1] === '.' && doc[pos + 2] === '.') {
-        pushToken('Punctuator', '...');
+        pushToken(TokenKind.Punctuator, '...');
         pos += 3;
         return true;
       } else {
@@ -132,7 +132,7 @@ export function tokenize(doc: string): Token[] {
         pos++;
       }
 
-      pushToken('Name', doc.substring(startPos, pos));
+      pushToken(TokenKind.Name, doc.substring(startPos, pos));
       return true;
     }
 
@@ -171,11 +171,11 @@ export function tokenize(doc: string): Token[] {
           pos++;
         }
 
-        pushToken('FloatValue', doc.substring(startPos, pos));
+        pushToken(TokenKind.FloatValue, doc.substring(startPos, pos));
         return true;
       }
 
-      pushToken('IntValue', doc.substring(startPos, pos));
+      pushToken(TokenKind.IntValue, doc.substring(startPos, pos));
       return true;
     }
 
@@ -191,7 +191,7 @@ export function tokenize(doc: string): Token[] {
       while (pos < doc.length) {
         if (doc.charCodeAt(pos) === 34) { // "
           pushToken(
-            'StringValue',
+            TokenKind.StringValue,
 
             // Try to use JSON.parse to handle escaping, unicode, etc.
             JSON.parse('"' + doc.substring(startPos, pos) + '"'),
@@ -239,7 +239,13 @@ export function tokenize(doc: string): Token[] {
   return tokens;
 }
 
-type TokenKind = 'Punctuator' | 'Name' | 'IntValue' | 'FloatValue' | 'StringValue';
+enum TokenKind {
+  Punctuator,
+  Name,
+  IntValue,
+  FloatValue,
+  StringValue,
+}
 
 type Token = {
   kind: TokenKind,
@@ -262,7 +268,7 @@ function parse(tokens: Token[]): DocumentNode {
   }
 
   function parseDefinition(): DefinitionNode {
-    const tok = consume('Name', true);
+    const tok = consume(TokenKind.Name, true);
 
     let hasKeyword = false;
     let definitionType = 'query';
@@ -277,7 +283,7 @@ function parse(tokens: Token[]): DocumentNode {
       definitionType === 'mutation' ||
       definitionType === 'subscription'
     ) {
-      const nameTok = consume('Name', true);
+      const nameTok = consume(TokenKind.Name, true);
 
       return {
         kind: 'OperationDefinition',
@@ -292,8 +298,8 @@ function parse(tokens: Token[]): DocumentNode {
     }
 
     if (definitionType === 'fragment') {
-      const nameTok = consume('Name', true);
-      consume('Name', false, 'on');
+      const nameTok = consume(TokenKind.Name, true);
+      consume(TokenKind.Name, false, 'on');
 
       return {
         kind: 'FragmentDefinition',
@@ -308,7 +314,7 @@ function parse(tokens: Token[]): DocumentNode {
   }
 
   function parseTypeCondition(): NamedTypeNode {
-    const nameToken = consume('Name', true);
+    const nameToken = consume(TokenKind.Name, true);
 
     if (! nameToken) {
       return null;
@@ -322,8 +328,8 @@ function parse(tokens: Token[]): DocumentNode {
 
   // Screw variable types
   function parseVariableDefinitions(): VariableDefinitionNode[] {
-    if (consume('Punctuator', true, '(')) {
-      while (! consume('Punctuator', true, ')')) {
+    if (consume(TokenKind.Punctuator, true, '(')) {
+      while (! consume(TokenKind.Punctuator, true, ')')) {
         consume();
       }
       return [];
@@ -334,10 +340,10 @@ function parse(tokens: Token[]): DocumentNode {
 
   function parseDirectives(): DirectiveNode[] {
     const directives: DirectiveNode[] = [];
-    while (!! consume('Punctuator', true, '@')) {
+    while (!! consume(TokenKind.Punctuator, true, '@')) {
       directives.push({
         kind: 'Directive',
-        name: { kind: 'Name', value: consume('Name').value, },
+        name: { kind: 'Name', value: consume(TokenKind.Name).value, },
         arguments: parseArguments(),
       })
     }
@@ -345,13 +351,13 @@ function parse(tokens: Token[]): DocumentNode {
   }
 
   function parseSelectionSet(optional: boolean = false): SelectionSetNode {
-    const exists = !! consume('Punctuator', optional, '{');
+    const exists = !! consume(TokenKind.Punctuator, optional, '{');
     if (! exists) {
       return null;
     }
 
     const selections = [];
-    while (! consume('Punctuator', true, '}')) {
+    while (! consume(TokenKind.Punctuator, true, '}')) {
       selections.push(parseSelection());
     }
 
@@ -362,9 +368,9 @@ function parse(tokens: Token[]): DocumentNode {
   }
 
   function parseSelection(optional: boolean = false): SelectionNode {
-    const isFragment = consume('Punctuator', true, '...');
+    const isFragment = consume(TokenKind.Punctuator, true, '...');
     if (isFragment) {
-      if (consume('Name', true, 'on') || tokens[pos].kind !== 'Name') {
+      if (consume(TokenKind.Name, true, 'on') || tokens[pos].kind !== TokenKind.Name) {
         return {
           kind: 'InlineFragment',
           typeCondition: parseTypeCondition(),
@@ -375,21 +381,21 @@ function parse(tokens: Token[]): DocumentNode {
 
       return {
         kind: 'FragmentSpread',
-        name: { kind: 'Name', value: consume('Name').value },
+        name: { kind: 'Name', value: consume(TokenKind.Name).value },
         directives: parseDirectives(),
       } as FragmentSpreadNode;
     } else {
       // This is a field
-      const aliasOrFieldNameTok = consume('Name', optional);
+      const aliasOrFieldNameTok = consume(TokenKind.Name, optional);
       if (! aliasOrFieldNameTok) {
         return null;
       }
 
       // Check for a colon to see if it is an alias
-      const isAlias = !! consume('Punctuator', true, ':');
+      const isAlias = !! consume(TokenKind.Punctuator, true, ':');
       let fieldName: string, alias: string;
       if (isAlias) {
-        const fieldNameTok = consume('Name');
+        const fieldNameTok = consume(TokenKind.Name);
         alias = aliasOrFieldNameTok.value;
         fieldName = fieldNameTok.value;
       } else {
@@ -410,21 +416,21 @@ function parse(tokens: Token[]): DocumentNode {
   }
 
   function parseArguments(): ArgumentNode[] {
-    const hasArguments = !! consume('Punctuator', true, '(');
+    const hasArguments = !! consume(TokenKind.Punctuator, true, '(');
     if (!hasArguments) {
       return [];
     }
 
     const args = [];
-    while (! consume('Punctuator', true, ')')) {
+    while (! consume(TokenKind.Punctuator, true, ')')) {
       args.push(parseArgument());
     }
     return args;
   }
 
   function parseArgument(): ArgumentNode {
-    const nameTok = consume('Name');
-    consume('Punctuator', false, ':');
+    const nameTok = consume(TokenKind.Name);
+    consume(TokenKind.Punctuator, false, ':');
 
     return {
       kind: 'Argument',
@@ -437,17 +443,33 @@ function parse(tokens: Token[]): DocumentNode {
     const valueTok = consume();
 
     if (
-      valueTok.kind === 'IntValue' ||
-      valueTok.kind === 'FloatValue' ||
-      valueTok.kind === 'StringValue'
+      valueTok.kind === TokenKind.IntValue
     ) {
       return {
-        kind: valueTok.kind,
+        kind: 'IntValue',
         value: valueTok.value,
-      } as IntValueNode | FloatValueNode | StringValueNode;
+      } as IntValueNode;
     }
 
-    if (valueTok.kind === 'Name') {
+    if (
+      valueTok.kind === TokenKind.FloatValue
+    ) {
+      return {
+        kind: 'FloatValue',
+        value: valueTok.value,
+      } as FloatValueNode;
+    }
+
+    if (
+      valueTok.kind === TokenKind.StringValue
+    ) {
+      return {
+        kind: 'StringValue',
+        value: valueTok.value,
+      } as StringValueNode;
+    }
+
+    if (valueTok.kind === TokenKind.Name) {
       // Bool
       if (valueTok.value === 'true' || valueTok.value === 'false') {
         return {
@@ -470,14 +492,14 @@ function parse(tokens: Token[]): DocumentNode {
       } as EnumValueNode;
     }
 
-    if (valueTok.kind === 'Punctuator') {
+    if (valueTok.kind === TokenKind.Punctuator) {
       // Variable
       if (valueTok.value === '$') {
         if (isConst) {
           throw new Error('Variables not allowed here');
         }
 
-        const varNameTok = consume('Name');
+        const varNameTok = consume(TokenKind.Name);
 
         return {
           kind: 'Variable',
@@ -488,7 +510,7 @@ function parse(tokens: Token[]): DocumentNode {
       if (valueTok.value === '[') {
         const values = [];
 
-        while (! consume('Punctuator', true, ']')) {
+        while (! consume(TokenKind.Punctuator, true, ']')) {
           values.push(parseValue(isConst));
         }
 
@@ -501,9 +523,9 @@ function parse(tokens: Token[]): DocumentNode {
       if (valueTok.value === '{') {
         const fields: ObjectFieldNode[] = [];
 
-        while (! consume('Punctuator', true, '}')) {
-          const nameTok = consume('Name', false);
-          consume('Punctuator', false, ':');
+        while (! consume(TokenKind.Punctuator, true, '}')) {
+          const nameTok = consume(TokenKind.Name, false);
+          consume(TokenKind.Punctuator, false, ':');
 
           fields.push({
             kind: 'ObjectField',
