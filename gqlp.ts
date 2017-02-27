@@ -153,21 +153,19 @@ export function tokenize(doc: string): Token[] {
   function tokenizeString() {
     if (doc.charCodeAt(pos) === 34) { // "
       pos++;
-      const chars = [];
-      let stringEnd = false;
+      const startPos = pos;
 
       // Consume characters that aren't ", /, or line terminator
       while (pos < doc.length) {
         if (doc.charCodeAt(pos) === 34) { // "
-          stringEnd = true;
-          pos++;
-
           pushToken(
             'StringValue',
 
             // Try to use JSON.parse to handle escaping, unicode, etc.
-            JSON.parse('"' + chars.join('') + '"'),
+            JSON.parse('"' + doc.substring(startPos, pos) + '"'),
           );
+
+          pos++;
 
           // break loop
           return true;
@@ -176,15 +174,12 @@ export function tokenize(doc: string): Token[] {
         // This is an escaped character
         if (doc.charCodeAt(pos) === 92) { // \
           // consume slash
-          chars.push(doc[pos]);
           pos++;
 
           // consume escaped character
-          chars.push(doc[pos]);
           pos++;
         } else {
           // consume character
-          chars.push(doc[pos]);
           pos++;
         }
       }
