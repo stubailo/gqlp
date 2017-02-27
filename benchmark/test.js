@@ -65,25 +65,32 @@ fragment frag on Friend {
 }
 `;
 
+const AST = gqlp(kitchenSink);
+const ASTJSON = JSON.stringify(AST);
+
 // add tests
 suite
-.add('tokenize', function() {
+.add('tokenize', () => {
   tokenize(kitchenSink);
 })
-.add('gqlp', function() {
+.add('gqlp', () => {
   gqlp(kitchenSink);
 })
-.add('graphql-js', function() {
+.add('graphql-js', () => {
   parse(kitchenSink);
 })
-.add('iterating and doing nothing', function() {
+.add('iterating and doing nothing', () => {
+  // I claim no GraphQL parser can be faster than this
   var tokens = [];
   for(var i = 0; i < kitchenSink.length; i++) {
     tokens.push(kitchenSink.charCodeAt(i));
   }
 })
+.add('parse JSON', () => {
+  JSON.parse(ASTJSON);
+})
 // add listeners
-.on('cycle', function(event) {
+.on('cycle', (event) => {
   console.log(String(event.target));
 })
 // run async
