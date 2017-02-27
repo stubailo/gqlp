@@ -6,14 +6,9 @@ const path = require('path');
 const GzipSize = require('gzip-size');
 const PrettyBytes = require('pretty-bytes');
 const UglifyJS = require("uglify-js");
-
-const filePath = '../lib/gqlp.js';
-
-console.log('gqlp: ', size(filePath));
-
 const webpack = require("webpack");
 
-['parse.js', 'print.js', 'print-and-parse.js'].forEach(webpackAndSize);
+['gqlp.js', 'parse.js', 'print.js', 'print-and-parse.js'].forEach(webpackAndSize);
 
 function webpackAndSize(relativePath) {
   const graphqlJsBundle = 'build.' + relativePath;
