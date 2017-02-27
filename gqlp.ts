@@ -119,16 +119,14 @@ export function tokenize(doc: string): Token[] {
   function tokenizeNumber(): boolean {
     // -?(0|[1-9][0-9]*)
     if (numberFirstChar.test(doc[pos])) {
-      const chars = [];
+      const startPos = pos;
       let isFloat = false;
 
       // consume first char
-      chars.push(doc[pos]);
       pos++;
 
       // consume rest chars
       while(numberIntPartRestChar.test(doc[pos])) {
-        chars.push(doc[pos]);
         pos++;
       }
 
@@ -136,20 +134,18 @@ export function tokenize(doc: string): Token[] {
       if (floatConnectorChar.test(doc[pos])) {
         // it's a float.
         isFloat = true;
-        chars.push(doc[pos]);
         pos++;
 
         // consume rest chars
         while(floatRestChar.test(doc[pos])) {
-          chars.push(doc[pos]);
           pos++;
         }
 
-        pushToken('FloatValue', chars.join(''));
+        pushToken('FloatValue', doc.substring(startPos, pos));
         return true;
       }
 
-      pushToken('IntValue', chars.join(''));
+      pushToken('IntValue', doc.substring(startPos, pos));
       return true;
     }
   }
