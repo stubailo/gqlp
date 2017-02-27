@@ -76,6 +76,12 @@ suite
 .add('graphql-js', function() {
   parse(kitchenSink);
 })
+.add('iterating and doing nothing', function() {
+  var tokens = [];
+  for(var i = 0; i < kitchenSink.length; i++) {
+    tokens.push(kitchenSink.charCodeAt(i));
+  }
+})
 // add listeners
 .on('cycle', function(event) {
   console.log(String(event.target));
