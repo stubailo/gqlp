@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "benchmark": "npm run build && node ./benchmark/test.js"
+    "benchmark": "npm run build && node ./benchmark/test.js",
+    "size": "npm run build && node ./bundle-size/test.js"
   },
   "author": "",
   "license": "MIT",
