@@ -97,19 +97,17 @@ export function tokenize(doc: string): Token[] {
   const nameRestChar = /[_0-9A-Za-z]/;
   function tokenizeName(): boolean {
     if(nameFirstChar.test(doc[pos])) {
-      const chars = [];
+      const startPos = pos;
 
       // consume first char
-      chars.push(doc[pos]);
       pos++;
 
       // consume rest chars
       while(nameRestChar.test(doc[pos])) {
-        chars.push(doc[pos]);
         pos++;
       }
 
-      pushToken('Name', chars.join(''));
+      pushToken('Name', doc.substring(startPos, pos));
       return true;
     }
   }
