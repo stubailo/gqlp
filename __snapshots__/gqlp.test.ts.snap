@@ -94,7 +94,7 @@ Array [
     "col": 3,
     "kind": "IntValue",
     "line": 1,
-    "value": 5,
+    "value": "5",
   },
   Object {
     "col": 3,
@@ -147,7 +147,7 @@ Array [
     "col": 3,
     "kind": "FloatValue",
     "line": 1,
-    "value": -5400,
+    "value": "-5.4e+3",
   },
   Object {
     "col": 3,

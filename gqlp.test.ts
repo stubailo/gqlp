@@ -9,6 +9,11 @@ testParsing('nested', '{ x { y } }');
 testParsing('two fields', '{ x y }');
 testParsing('multi op', 'query { x } query { y }');
 testParsing('mutation and subscription', 'mutation { x } subscription { x }');
+testParsing('argument', '{ x(a: 5) }');
+testParsing('argument float', '{ x(a: 5.0) }');
+testParsing('multi arguments', '{ x(a: 1 b: 2) }');
+testParsing('scalar', '{ x(a: 1 b: 2.0 c: "hello" d: true e: null f: $var g: ENUM_VAL ) }');
+testParsing('list', '{ x(a: [1, 2.0, "hello", true, null, $var, ENUM_VAL] ) }');
 
 function testParsing(name: string, query: string) {
   it(`parsing: ${name}`, () => {

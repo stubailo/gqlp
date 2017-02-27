@@ -6,6 +6,16 @@ import {
   SelectionSetNode,
   SelectionNode,
   FieldNode,
+  ArgumentNode,
+  ValueNode,
+  IntValueNode,
+  FloatValueNode,
+  StringValueNode,
+  BooleanValueNode,
+  NullValueNode,
+  VariableNode,
+  EnumValueNode,
+  ListValueNode,
 } from 'graphql';
 
 export function gqlp(doc: string): DocumentNode {
@@ -21,7 +31,7 @@ export function tokenize(doc: string): Token[] {
   let col = 0;
   let tokens: Token[] = [];
 
-  function pushToken(kind, value) {
+  function pushToken(kind: TokenKind, value: string) {
     tokens.push({
       kind,
       value,
@@ -125,11 +135,11 @@ export function tokenize(doc: string): Token[] {
           pos++;
         }
 
-        pushToken('FloatValue', parseFloat(chars.join('')));
+        pushToken('FloatValue', chars.join(''));
         return true;
       }
 
-      pushToken('IntValue', parseInt(chars.join(''), 10));
+      pushToken('IntValue', chars.join(''));
       return true;
     }
   }
@@ -307,15 +317,9 @@ function parse(tokens: Token[]): DocumentNode {
         fieldName = aliasOrFieldNameTok.value;
       }
 
-      // Check for a paren to see if it has arguments
-      const hasArguments = !! consume('Punctuator', true, '(');
-      if (hasArguments) {
-        throw new Error('arguments not implemented');
-      }
-
       const field: FieldNode = {
         alias: alias ? { kind: 'Name', value: alias } : null,
-        arguments: [],
+        arguments: parseArguments(),
         directives: parseDirectives(),
         kind: 'Field',
         name: { kind: 'Name', value: fieldName },
@@ -326,15 +330,116 @@ function parse(tokens: Token[]): DocumentNode {
     }
   }
 
-  function consume(kind: TokenKind, optional: boolean = false, value?: string): Token | null {
+  function parseArguments(): ArgumentNode[] {
+    const hasArguments = !! consume('Punctuator', true, '(');
+    if (!hasArguments) {
+      return [];
+    }
+
+    const args = [];
+    while (! consume('Punctuator', true, ')')) {
+      args.push(parseArgument());
+    }
+    return args;
+  }
+
+  function parseArgument(): ArgumentNode {
+    const nameTok = consume('Name');
+    consume('Punctuator', false, ':');
+
+    return {
+      kind: 'Argument',
+      name: { kind: 'Name', value: nameTok.value },
+      value: parseValue(),
+    };
+  }
+
+  function parseValue(isConst: boolean = false): ValueNode {
+    const valueTok = consume();
+
+    if (
+      valueTok.kind === 'IntValue' ||
+      valueTok.kind === 'FloatValue' ||
+      valueTok.kind === 'StringValue'
+    ) {
+      return {
+        kind: valueTok.kind,
+        value: valueTok.value,
+      } as IntValueNode | FloatValueNode | StringValueNode;
+    }
+
+    if (valueTok.kind === 'Name') {
+      // Bool
+      if (valueTok.value === 'true' || valueTok.value === 'false') {
+        return {
+          kind: 'BooleanValue',
+          value: valueTok.value === 'true',
+        } as BooleanValueNode;
+      }
+
+      // Null
+      if (valueTok.value === 'null') {
+        return {
+          kind: 'NullValue',
+        } as NullValueNode;
+      }
+
+      // Enum
+      return {
+        kind: 'EnumValue',
+        value: valueTok.value,
+      } as EnumValueNode;
+    }
+
+    if (valueTok.kind === 'Punctuator') {
+      // Variable
+      if (valueTok.value === '$') {
+        if (isConst) {
+          throw new Error('Variables not allowed here');
+        }
+
+        const varNameTok = consume('Name');
+
+        return {
+          kind: 'Variable',
+          name: { kind: 'Name', value: varNameTok.value },
+        } as VariableNode;
+      }
+
+      if (valueTok.value === '[') {
+        const values = [];
+
+        while (! consume('Punctuator', true, ']')) {
+          values.push(parseValue(isConst));
+        }
+
+        return {
+          kind: 'ListValue',
+          values,
+        } as ListValueNode;
+      }
+
+      if (valueTok.value === '{') {
+        // Obj
+      }
+    }
+
+    throw new Error(`Invalid value ${tokens[pos].value} at ${tokens[pos].line}, ${tokens[pos].col}`);
+  }
+
+  function consume(
+    kind?: TokenKind,
+    optional: boolean = false,
+    value?: string,
+  ): Token | null {
     const found = true;
-    if (tokens[pos].kind !== kind) {
+    if (kind && tokens[pos].kind !== kind) {
       if (optional) {
         return null;
       }
 
       throw new Error(
-        `Invalid token ${tokens[pos].value} at ${tokens[pos].line}, ${tokens[pos].col}`);
+        `Invalid token ${tokens[pos].value} at ${tokens[pos].line}, ${tokens[pos].col}. Expected kind: ${kind}`);
     }
 
     if (value && tokens[pos].value !== value) {
@@ -343,7 +448,7 @@ function parse(tokens: Token[]): DocumentNode {
       }
 
       throw new Error(
-        `Invalid token ${tokens[pos].value} at ${tokens[pos].line}, ${tokens[pos].col}`);
+        `Invalid token ${tokens[pos].value} at ${tokens[pos].line}, ${tokens[pos].col}. Expected value: ${value}`);
     }
 
     pos++;
