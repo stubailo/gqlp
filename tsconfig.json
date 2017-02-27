@@ -2,6 +2,10 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es5",
-    "outDir": "lib"
+    "outDir": "lib",
+    "allowUnreachableCode": false,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   }
 }

@@ -73,6 +73,8 @@ export function tokenize(doc: string): Token[] {
       }
       return true;
     }
+
+    return false;
   }
 
   // punctuator regex is /[!$():=@\[\]{}]/;
@@ -103,10 +105,10 @@ export function tokenize(doc: string): Token[] {
         throw new Error('Syntax error, expected .');
       }
     }
+
+    return false;
   }
 
-  const nameFirstChar = /[_A-Za-z]/;
-  const nameRestChar = /[_0-9A-Za-z]/;
   function tokenizeName(): boolean {
     if (
       // /[_A-Za-z]/
@@ -133,9 +135,10 @@ export function tokenize(doc: string): Token[] {
       pushToken('Name', doc.substring(startPos, pos));
       return true;
     }
+
+    return false;
   }
 
-  const numberFirstChar = /[\-0-9]/;
   const numberIntPartRestChar = /[0-9]/;
   const floatConnectorChar = /[.eE]/;
   const floatRestChar = /[0-9Ee+\-]/;
@@ -175,9 +178,11 @@ export function tokenize(doc: string): Token[] {
       pushToken('IntValue', doc.substring(startPos, pos));
       return true;
     }
+
+    return false;
   }
 
-  function tokenizeString() {
+  function tokenizeString(): boolean {
     if (doc.charCodeAt(pos) === 34) { // "
       pos++;
       const startPos = pos;
@@ -214,6 +219,8 @@ export function tokenize(doc: string): Token[] {
       // We got to the end without a terminator
       throw new Error('unterminated string literal');
     }
+
+    return false;
   }
 
   function throwUnknownCharacterError() {
@@ -496,7 +503,7 @@ function parse(tokens: Token[]): DocumentNode {
 
         while (! consume('Punctuator', true, '}')) {
           const nameTok = consume('Name', false);
-          const colon = consume('Punctuator', false, ':');
+          consume('Punctuator', false, ':');
 
           fields.push({
             kind: 'ObjectField',
@@ -520,7 +527,6 @@ function parse(tokens: Token[]): DocumentNode {
     optional: boolean = false,
     value?: string,
   ): Token | null {
-    const found = true;
     if (kind && tokens[pos].kind !== kind) {
       if (optional) {
         return null;
@@ -541,10 +547,6 @@ function parse(tokens: Token[]): DocumentNode {
 
     pos++;
     return tokens[pos - 1];
-  }
-
-  function value() {
-    return tokens[pos].value;
   }
 
   return {
