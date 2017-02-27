@@ -75,10 +75,22 @@ export function tokenize(doc: string): Token[] {
     }
   }
 
-  // TODO - test all of these
-  const singleCharPunctuator = /[!$():=@\[\]{}]/;
+  // punctuator regex is /[!$():=@\[\]{}]/;
+  // char codes are 33,36,40,41,58,61,64,91,93,123,125
   function tokenizePunctuator(): boolean {
-    if (singleCharPunctuator.test(doc[pos])) {
+    if (
+      doc.charCodeAt(pos) === 33 ||
+      doc.charCodeAt(pos) === 36 ||
+      doc.charCodeAt(pos) === 40 ||
+      doc.charCodeAt(pos) === 41 ||
+      doc.charCodeAt(pos) === 58 ||
+      doc.charCodeAt(pos) === 61 ||
+      doc.charCodeAt(pos) === 64 ||
+      doc.charCodeAt(pos) === 91 ||
+      doc.charCodeAt(pos) === 93 ||
+      doc.charCodeAt(pos) === 123 ||
+      doc.charCodeAt(pos) === 125
+    ) {
       pushToken('Punctuator', doc[pos]);
       pos++;
       return true;
